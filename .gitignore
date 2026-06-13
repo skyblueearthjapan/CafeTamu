@@ -1,0 +1,21 @@
+# clasp / Google Apps Script
+# .clasp.json はチームで共有するためコミットする方針（scriptId のみ・機密性低）
+.clasprc.json
+*.clasprc.json
+
+# Node
+node_modules/
+npm-debug.log*
+
+# OS / Editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# OMC ローカル状態
+.omc/
+
+# ログ・一時ファイル
+*.log
+tmp/
