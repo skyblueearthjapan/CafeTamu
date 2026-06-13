@@ -26,15 +26,15 @@ function include(filename) {
 /** 初期データ：部署チップ・スタッフ一覧（残高付き）・管理サマリ用の素データ */
 function getInit() {
   try {
-    const workers = readWorkerMaster_();
-    const deptRows = readDeptMaster_();
+    const workers = listWorkers_();
     const { byWorker } = buildLedgerIndex_();
 
-    const depts = deptRows
-      .filter(r => truthy_(r.is_active))
-      .sort((a, b) => (Number(a.display_order) || 0) - (Number(b.display_order) || 0))
-      .map(r => r.dept_name)
-      .filter(Boolean);
+    // 部署チップは作業員マスタの「部署」列のユニーク値から生成する
+    //（部署マスタは使わない。"業務" のような親グループは実所属が配下部署名のため
+    //  ここには出ず、総務部・資材・購買・生産管理・品質管理・在庫管理・営業部などが
+    //  実在の部署としてそのまま並ぶ）
+    const depts = Array.from(new Set(workers.map(w => w.dept).filter(Boolean)))
+      .sort((a, b) => a.localeCompare(b, 'ja'));
 
     const staff = workers.map(w => {
       const led = byWorker[w.worker_code] || { balance: 0, today: 0, month: 0 };
@@ -161,7 +161,7 @@ function undoEntry(code, txId) {
 /** 管理画面：サマリ・スタッフ別・月別推移 */
 function getAdmin() {
   try {
-    const workers = readWorkerMaster_();
+    const workers = listWorkers_();
     const { byWorker, monthAgg } = buildLedgerIndex_();
 
     const rows = workers.map(w => {
@@ -230,6 +230,13 @@ function syncMasters() {
 
 function findWorker_(code) {
   return readWorkerMaster_().find(w => String(w.worker_code) === String(code)) || null;
+}
+
+/** 表示・集計対象の作業員（システムアカウント等を除外） */
+function listWorkers_() {
+  return readWorkerMaster_().filter(w =>
+    w.worker_code && w.worker_name &&
+    w.worker_name !== 'Administrator' && w.dept_name !== 'Administrator');
 }
 
 /** 取引後の最新状態（残高・本日/今月・履歴）。lastTxId は省略可 */
