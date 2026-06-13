@@ -33,7 +33,7 @@ function getInit() {
     //（部署マスタは使わない。"業務" のような親グループは実所属が配下部署名のため
     //  ここには出ず、総務部・資材・購買・生産管理・品質管理・在庫管理・営業部などが
     //  実在の部署としてそのまま並ぶ）
-    const depts = Array.from(new Set(workers.map(w => w.dept).filter(Boolean)))
+    const depts = Array.from(new Set(workers.map(w => w.dept_name).filter(Boolean)))
       .sort((a, b) => a.localeCompare(b, 'ja'));
 
     const staff = workers.map(w => {
