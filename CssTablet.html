@@ -1,0 +1,149 @@
+<style>
+  /* ===== 喫茶Tamu カウントアプリ（タブレット／券売機モデル） ===== */
+  :root {
+    --green: #1f3b2e; --green-dark: #16291f; --green-line: #4f7a63; --green-line2: #355c46;
+    --cream: #f3e8d2; --cream-2: #fffaf0; --cream-3: #fcf6e8;
+    --ink: #33271b; --brown: #5a3a1c; --tan: #9c8055; --tan-2: #c9a86f;
+    --amber: #b9772e; --red: #b23a2e; --green-pos: #2f6b4a;
+    --led-amber: #ffc24d; --led-red: #ff6b5a;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; height: 100%; }
+  body { font-family: "Zen Kaku Gothic New", sans-serif; -webkit-font-smoothing: antialiased; background: var(--cream); color: var(--ink); overscroll-behavior: none; }
+  .serif { font-family: "Shippori Mincho", serif; }
+  .cursive { font-family: "Klee One", cursive; }
+
+  #app { position: relative; width: 100%; height: 100vh; height: 100dvh; background: var(--cream); background-image: radial-gradient(circle at 18% 12%, #ffffff55, transparent 45%); overflow: hidden; }
+  .screen { position: absolute; inset: 0; display: none; flex-direction: column; }
+  .screen.active { display: flex; }
+
+  .scroll { overflow-y: auto; -webkit-overflow-scrolling: touch; }
+  .scroll::-webkit-scrollbar { width: 8px; height: 8px; }
+  .scroll::-webkit-scrollbar-thumb { background: #c9b48a; border-radius: 8px; }
+  .scroll::-webkit-scrollbar-track { background: transparent; }
+
+  .logo { width: 44px; height: 44px; display: block; border-radius: 9px; filter: invert(1) sepia(1) hue-rotate(70deg) saturate(1.4) brightness(0.92); }
+  .btn-ghost { border: 1px solid var(--green-line); background: var(--green-dark); color: #cfe3d4; cursor: pointer; border-radius: 12px; padding: 12px 20px; font-size: 16px; font-weight: 500; }
+  .btn-ghost.sm { padding: 11px 18px; }
+
+  /* ---- HOME ---- */
+  .home-hdr { height: 104px; flex: none; background: var(--green); color: var(--cream); display: flex; align-items: center; justify-content: space-between; padding: 0 40px; box-shadow: 0 4px 0 var(--green-dark); }
+  .home-body { flex: 1; min-height: 0; padding: 30px 40px 0; display: flex; flex-direction: column; }
+  .home-top { display: flex; align-items: center; justify-content: space-between; gap: 24px; margin-bottom: 18px; }
+  .home-top h1 { margin: 0; font-family: "Shippori Mincho", serif; font-weight: 700; font-size: 30px; color: var(--ink); }
+  .search-wrap { position: relative; width: 420px; flex: none; }
+  .search-wrap .ic { position: absolute; left: 18px; top: 50%; transform: translateY(-50%); font-size: 20px; color: var(--tan); }
+  .search-wrap input { width: 100%; padding: 15px 18px 15px 46px; border-radius: 14px; border: 2px solid #d8c49c; background: var(--cream-2); font-size: 18px; color: var(--ink); font-family: "Zen Kaku Gothic New", sans-serif; outline: none; }
+  .chips { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+  .chip { border: 1px solid #d8c49c; background: var(--cream-2); color: var(--brown); cursor: pointer; border-radius: 999px; padding: 9px 20px; font-size: 16px; font-weight: 500; }
+  .chip.active { border-color: var(--green); background: var(--green); color: var(--cream); }
+  .staff-scroll { flex: 1; min-height: 0; overflow-y: auto; padding-right: 8px; padding-bottom: 24px; }
+  .staff-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+  .staff-card { text-align: left; cursor: pointer; border: 1px solid #e3d4b3; background: var(--cream-2); border-radius: 18px; padding: 18px 20px; display: flex; flex-direction: column; gap: 10px; box-shadow: 0 6px 14px -10px #5a431f80; }
+  .staff-card.neg { background: #fbeeec; border-color: #e6c4be; }
+  .staff-card .dept { font-size: 13px; color: var(--tan); font-weight: 500; }
+  .staff-card .name { font-family: "Shippori Mincho", serif; font-weight: 700; font-size: 24px; color: var(--ink); }
+  .staff-card .bal-row { display: flex; align-items: baseline; justify-content: space-between; margin-top: 2px; }
+  .staff-card .bal { font-family: "Shippori Mincho", serif; font-weight: 700; font-size: 22px; }
+  .empty { padding: 60px; text-align: center; color: var(--tan); font-size: 20px; font-family: "Klee One", cursive; }
+
+  /* ---- COUNT (券売機) ---- */
+  .count-hdr { height: 96px; flex: none; background: var(--green); color: var(--cream); display: flex; align-items: center; justify-content: space-between; padding: 0 32px; box-shadow: 0 4px 0 var(--green-dark); }
+  .count-hdr .who { display: flex; align-items: baseline; gap: 12px; }
+  .count-hdr .who .nm { font-family: "Shippori Mincho", serif; font-weight: 700; font-size: 28px; }
+  .count-hdr .who .dp { font-size: 15px; color: var(--tan-2); }
+  .stat-box { background: var(--green-dark); border: 1px solid var(--green-line2); border-radius: 12px; padding: 8px 16px; text-align: center; }
+  .stat-box .k { font-size: 12px; color: #9fc0ac; }
+  .stat-box .v { font-family: "Shippori Mincho", serif; font-size: 20px; }
+  .stat-box .v small { font-size: 13px; }
+  .count-body { flex: 1; min-height: 0; display: flex; gap: 22px; padding: 24px 32px; }
+  .machine { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 18px; }
+  .led { flex: none; background: #14110c; border-radius: 16px; border: 2px solid #3a2c1f; padding: 18px 28px; display: flex; align-items: center; justify-content: space-between; box-shadow: inset 0 0 24px #00000099; }
+  .led .lab { font-family: "Klee One", cursive; font-size: 18px; color: #7d6a4a; }
+  .led .num { font-family: "Shippori Mincho", serif; font-weight: 800; font-size: 56px; line-height: 1; }
+  .warn { flex: none; background: var(--red); color: #fff; border-radius: 12px; padding: 15px 20px; font-size: 23px; font-weight: 600; line-height: 1.5; }
+  .drink-grid { flex: 1; min-height: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .btn-drink { cursor: pointer; border: none; border-radius: 16px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; }
+  .btn-coffee { background: linear-gradient(180deg,#caa468,#a87f3f); box-shadow: 0 8px 0 #7c5a28, inset 0 2px 4px #f0d9a8; }
+  .btn-tea { background: linear-gradient(180deg,#8fb083,#5f8a56); box-shadow: 0 8px 0 #436b3c, inset 0 2px 4px #c8e0bd; }
+  .btn-drink .name { font-family: "Shippori Mincho", serif; font-weight: 700; font-size: 36px; }
+  .btn-drink .price { border-radius: 999px; padding: 5px 22px; font-family: "Shippori Mincho", serif; font-weight: 700; font-size: 26px; }
+  .btn-coffee .name { color: #2b1c0e; } .btn-coffee .price { background: #2b1c0e; color: #f0d9a8; }
+  .btn-tea .name { color: #1c3318; } .btn-tea .price { background: #1c3318; color: #c8e0bd; }
+  .btn-cup { grid-column: 1 / span 2; cursor: pointer; border: 2px dashed #c2a878; border-radius: 16px; background: var(--cream-3); display: flex; align-items: center; justify-content: center; gap: 16px; padding: 18px; }
+  .btn-cup .name { font-family: "Shippori Mincho", serif; font-weight: 700; font-size: 26px; color: var(--brown); }
+  .btn-cup .price { background: var(--amber); color: #fff8ec; border-radius: 999px; padding: 6px 22px; font-family: "Shippori Mincho", serif; font-weight: 700; font-size: 22px; }
+
+  .side { width: 322px; flex: none; display: flex; flex-direction: column; gap: 16px; }
+  .coin-panel { flex: none; background: var(--green); border-radius: 18px; padding: 20px 22px; box-shadow: inset 0 2px 0 var(--green-pos); }
+  .coin-panel .ttl { font-family: "Klee One", cursive; font-size: 17px; color: #9fc0ac; margin-bottom: 4px; }
+  .coin-panel .sub { font-size: 13px; color: #7fa089; margin-bottom: 14px; line-height: 1.5; }
+  .coin-list { display: flex; flex-direction: column; gap: 10px; }
+  .btn-coin { cursor: pointer; border: none; border-radius: 999px; background: linear-gradient(180deg,#e8c98c,#c9a25a); box-shadow: 0 5px 0 #9c7a3e, inset 0 2px 3px #f7ecd0; padding: 14px; font-family: "Shippori Mincho", serif; font-weight: 700; font-size: 24px; color: #3a2812; display: flex; align-items: center; justify-content: center; gap: 10px; }
+  .btn-coin .yenmark { width: 26px; height: 26px; border-radius: 50%; border: 2px solid #3a2812; display: flex; align-items: center; justify-content: center; font-size: 14px; }
+  .rule { margin-top: 13px; background: var(--green-dark); border: 1px solid #c08a3a; border-radius: 11px; padding: 12px 14px; display: flex; flex-direction: column; gap: 4px; }
+  .rule .r1 { font-size: 15px; color: #fff; font-weight: 700; line-height: 1.4; }
+  .rule .r2 { font-size: 13px; color: #f0d9a8; line-height: 1.45; }
+  .hist-panel { flex: 1; min-height: 0; background: var(--cream-2); border: 1px solid #e3d4b3; border-radius: 18px; padding: 16px 18px; display: flex; flex-direction: column; }
+  .hist-panel .ttl { font-family: "Klee One", cursive; font-size: 15px; color: #7a6a55; margin-bottom: 10px; }
+  .hist-scroll { flex: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; }
+  .hist-row { display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #efe3c8; padding-bottom: 7px; }
+  .hist-row .amt { font-family: "Shippori Mincho", serif; font-weight: 700; font-size: 17px; }
+  .btn-undo { border: 1px solid #d6b8b3; background: #fbeeec; color: var(--red); cursor: pointer; border-radius: 7px; padding: 3px 9px; font-size: 12px; }
+
+  /* ---- ADMIN ---- */
+  .admin-hdr { height: 104px; flex: none; background: var(--green-dark); color: var(--cream); display: flex; align-items: center; justify-content: space-between; padding: 0 40px; }
+  .seg { display: flex; gap: 6px; background: var(--green); padding: 6px; border-radius: 12px; border: 1px solid var(--green-line2); }
+  .seg .tab { border: none; cursor: pointer; border-radius: 8px; padding: 9px 18px; font-size: 15px; font-weight: 500; background: transparent; color: #9fc0ac; }
+  .seg .tab.active { background: var(--cream); color: var(--green-dark); }
+  .admin-body { flex: 1; min-height: 0; padding: 26px 40px 0; display: flex; flex-direction: column; gap: 20px; }
+  .stats { display: grid; grid-template-columns: repeat(6, 1fr); gap: 14px; flex: none; }
+  .stat { background: var(--cream-2); border: 1px solid #e3d4b3; border-radius: 16px; padding: 16px 18px; }
+  .stat .l { font-size: 13px; color: var(--tan); }
+  .stat .v { font-family: "Shippori Mincho", serif; font-weight: 700; font-size: 30px; margin-top: 4px; line-height: 1; }
+  .stat .u { font-size: 12px; color: #b09a76; margin-top: 4px; }
+  .panel { flex: 1; min-height: 0; overflow-y: auto; background: var(--cream-2); border: 1px solid #e3d4b3; border-radius: 18px; }
+  .panel.pad { padding: 18px 26px; }
+  .thead, .trow { display: grid; align-items: center; }
+  .thead { padding: 14px 22px; position: sticky; top: 0; background: #efe3c8; font-size: 14px; color: #7a6a55; font-weight: 700; border-bottom: 1px solid #e3d4b3; }
+  .trow { padding: 13px 22px; border-bottom: 1px solid #efe3c8; }
+  .cols-staff { grid-template-columns: 1.4fr 1fr .9fr .7fr .7fr; }
+  .cols-detail { grid-template-columns: 1.4fr 1fr .8fr .8fr .9fr 1fr; }
+  .cols-month { grid-template-columns: 72px 1fr 88px 88px 96px 120px 30px; }
+  .trow.neg { background: #fbeeec; }
+  .r-name { font-family: "Shippori Mincho", serif; font-weight: 600; font-size: 18px; color: var(--ink); }
+  .r-dept { font-size: 15px; color: #7a6a55; }
+  .r-num { text-align: right; font-size: 16px; color: #7a6a55; }
+  .r-bal { text-align: right; font-family: "Shippori Mincho", serif; font-weight: 700; font-size: 18px; }
+  .month-head { display: flex; align-items: center; gap: 14px; margin-bottom: 12px; flex: none; }
+  .mrow { cursor: pointer; border-radius: 10px; }
+  .mrow:hover { background: #f4ead2; }
+  .mrow .m { font-family: "Shippori Mincho", serif; font-weight: 700; font-size: 21px; color: var(--green); }
+  .mrow .bar { height: 20px; background: #eadfc4; border-radius: 999px; margin-right: 20px; overflow: hidden; }
+  .mrow .bar > div { height: 100%; background: linear-gradient(90deg,#3f7a4a,#6f9a62); }
+  .mrow .cups { text-align: right; font-family: "Shippori Mincho", serif; font-weight: 700; font-size: 19px; color: var(--ink); }
+  .mrow .spend { text-align: right; font-family: "Shippori Mincho", serif; font-weight: 700; font-size: 19px; color: var(--green); }
+  .mrow .chev { text-align: right; color: var(--amber); font-size: 22px; line-height: 1; }
+
+  /* ピッ演出 */
+  @keyframes tamuPip {
+    0% { transform: translate(-50%,-50%) scale(.5) rotate(-8deg); opacity: 0; }
+    16% { transform: translate(-50%,-50%) scale(1.12) rotate(-4deg); opacity: 1; }
+    34% { transform: translate(-50%,-50%) scale(.98) rotate(-6deg); opacity: 1; }
+    78% { transform: translate(-50%,-50%) scale(1) rotate(-6deg); opacity: 1; }
+    100% { transform: translate(-50%,-62%) scale(1) rotate(-6deg); opacity: 0; }
+  }
+  @keyframes tamuRing {
+    0% { transform: translate(-50%,-50%) scale(.5); opacity: .5; }
+    100% { transform: translate(-50%,-50%) scale(1.9); opacity: 0; }
+  }
+  #pip { position: absolute; z-index: 60; pointer-events: none; transform: translate(-50%,-50%); }
+  #pip .ring { position: absolute; left: 50%; top: 50%; width: 168px; height: 168px; border-radius: 50%; border: 4px solid; animation: tamuRing 700ms ease-out forwards; }
+  #pip .stamp { width: 158px; height: 158px; border-radius: 50%; background: var(--cream); border: 5px solid; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 0 14px 30px -8px rgba(0,0,0,.4); }
+  #pip .stamp .snd { font-family: "Klee One", cursive; font-weight: 600; line-height: 1; text-align: center; }
+  #pip .stamp .lbl { font-family: "Shippori Mincho", serif; font-weight: 700; font-size: 18px; color: var(--ink); margin-top: 6px; }
+  #pip .stamp .sub { font-family: "Shippori Mincho", serif; font-weight: 700; font-size: 23px; margin-top: 1px; }
+
+  .loading { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: var(--cream); z-index: 80; color: var(--tan); font-family: "Klee One", cursive; font-size: 20px; }
+  .toast { position: absolute; left: 50%; bottom: 28px; transform: translateX(-50%); background: var(--green-dark); color: var(--cream); padding: 12px 22px; border-radius: 12px; font-size: 16px; z-index: 90; box-shadow: 0 8px 20px -6px rgba(0,0,0,.5); }
+</style>

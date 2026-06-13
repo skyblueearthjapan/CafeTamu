@@ -1,0 +1,292 @@
+<script>
+(function () {
+  'use strict';
+
+  function call(fn, args) {
+    return new Promise(function (resolve, reject) {
+      google.script.run
+        .withSuccessHandler(function (res) {
+          if (res && res.ok === false) reject(new Error(res.message || res.code || 'error'));
+          else resolve(res && res.ok ? res.data : res);
+        })
+        .withFailureHandler(function (err) { reject(err); })
+        [fn].apply(google.script.run, args || []);
+    });
+  }
+
+  var S = {
+    depts: [], staff: [], staffByCode: {},
+    prices: { coffee: 20, tea: 10, cup: 10 },
+    depositOptions: [100, 500, 1000],
+    q: '', dept: 'すべて',
+    selectedCode: null,
+    adminTab: 'staff', monthDetail: null,
+    admin: null, busy: false,
+  };
+
+  var el = function (id) { return document.getElementById(id); };
+  function yen(n) { var s = '¥' + Math.abs(n).toLocaleString('ja-JP'); return n < 0 ? '−' + s : s; }
+  function signed(n) { var s = '¥' + Math.abs(n).toLocaleString('ja-JP'); if (n < 0) return '−' + s; if (n > 0) return '＋' + s; return s; }
+  function tone(n) { return n < 0 ? '#b23a2e' : '#2f6b4a'; }
+  function escapeHtml(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+
+  function show(screen) {
+    ['home', 'count', 'admin'].forEach(function (s) { el('screen-' + s).classList.toggle('active', s === screen); });
+  }
+  function toast(msg) {
+    var t = document.createElement('div'); t.className = 'toast'; t.textContent = msg;
+    el('app').appendChild(t); setTimeout(function () { t.remove(); }, 2600);
+  }
+
+  // ===== HOME =====
+  function renderChips() {
+    var all = ['すべて'].concat(S.depts);
+    el('dept-chips').innerHTML = all.map(function (d) {
+      return '<button class="chip' + (S.dept === d ? ' active' : '') + '" data-dept="' + escapeHtml(d) + '">' + escapeHtml(d) + '</button>';
+    }).join('');
+  }
+  function filteredStaff() {
+    var q = S.q.trim();
+    return S.staff.filter(function (s) {
+      if (S.dept !== 'すべて' && s.dept !== S.dept) return false;
+      if (q && s.name.indexOf(q) < 0 && s.dept.indexOf(q) < 0) return false;
+      return true;
+    });
+  }
+  function renderStaffGrid() {
+    var list = filteredStaff();
+    var grid = el('staff-grid'), nr = el('no-results');
+    if (!list.length) {
+      grid.innerHTML = '';
+      nr.style.display = ''; nr.className = 'empty';
+      nr.innerHTML = '「' + escapeHtml(S.q) + '」に一致する方が見つかりませんでした';
+      return;
+    }
+    nr.style.display = 'none';
+    grid.innerHTML = list.map(function (s) {
+      return '<button class="staff-card' + (s.balance < 0 ? ' neg' : '') + '" data-code="' + escapeHtml(s.code) + '">' +
+        '<span class="dept">' + escapeHtml(s.dept) + '</span>' +
+        '<span class="name">' + escapeHtml(s.name) + '</span>' +
+        '<div class="bal-row"><span style="font-size:13px; color:#9c8055;">残高</span>' +
+        '<span class="bal" style="color:' + tone(s.balance) + ';">' + yen(s.balance) + '</span></div>' +
+      '</button>';
+    }).join('');
+  }
+
+  // ===== COUNT =====
+  function curStaff() { return S.staffByCode[S.selectedCode]; }
+  function renderCount() {
+    var c = curStaff(); if (!c) return;
+    el('count-name').textContent = c.name;
+    el('count-dept').textContent = c.dept;
+    el('led-today').textContent = c.today || 0;
+    el('led-month').textContent = c.month || 0;
+    var neg = c.balance < 0;
+    var b = el('led-balance');
+    b.textContent = yen(c.balance);
+    b.style.color = neg ? '#ff6b5a' : '#ffc24d';
+    b.style.textShadow = '0 0 16px ' + (neg ? '#ff6b5a99' : '#ffc24d88');
+    el('neg-warn').style.display = neg ? '' : 'none';
+    renderHistory(c.history || []);
+  }
+  function renderHistory(history) {
+    var box = el('hist-list');
+    if (!history.length) { box.innerHTML = '<span style="color:#b09a76; font-size:14px;">まだ利用がありません</span>'; return; }
+    box.innerHTML = history.map(function (h) {
+      return '<div class="hist-row">' +
+        '<div style="display:flex; flex-direction:column;"><span style="font-size:14px; color:#33271b;">' + escapeHtml(h.label) + '</span>' +
+        '<span style="font-size:11px; color:#b09a76;">' + escapeHtml(h.time) + '</span></div>' +
+        '<div style="display:flex; align-items:center; gap:8px;"><span class="amt" style="color:' + tone(h.amount) + ';">' + signed(h.amount) + '</span>' +
+        '<button class="btn-undo" data-undo="' + escapeHtml(h.id) + '">取消</button></div>' +
+      '</div>';
+    }).join('');
+  }
+  function renderCoins() {
+    el('coin-list').innerHTML = S.depositOptions.map(function (a) {
+      return '<button class="btn-coin" data-coin="' + a + '"><span class="yenmark">¥</span>¥' + a.toLocaleString('ja-JP') + '</button>';
+    }).join('');
+  }
+  function applyState(st) {
+    var c = S.staffByCode[st.code]; if (!c) return;
+    c.balance = st.balance; c.today = st.today; c.month = st.month;
+    if (st.history) c.history = st.history;
+    if (S.selectedCode === st.code) renderCount();
+  }
+
+  function pip(opts, targetEl) {
+    var app = el('app'); var ar = app.getBoundingClientRect();
+    var x = ar.width / 2, y = ar.height / 2;
+    if (targetEl) { var br = targetEl.getBoundingClientRect(); x = br.left + br.width / 2 - ar.left; y = br.top + br.height / 2 - ar.top; }
+    var old = el('pip'); if (old) old.remove();
+    var soundSize = opts.sound.length > 3 ? 27 : 42;
+    var wrap = document.createElement('div');
+    wrap.id = 'pip'; wrap.style.left = x + 'px'; wrap.style.top = y + 'px';
+    wrap.style.animation = 'tamuPip 1000ms cubic-bezier(.2,.8,.2,1) forwards';
+    wrap.innerHTML =
+      '<div class="ring" style="border-color:' + opts.accent + ';"></div>' +
+      '<div class="stamp" style="border-color:' + opts.accent + ';">' +
+        '<div class="snd" style="font-size:' + soundSize + 'px; color:' + opts.accent + ';">' + escapeHtml(opts.sound) + '</div>' +
+        '<div class="lbl">' + escapeHtml(opts.label) + '</div>' +
+        '<div class="sub" style="color:' + opts.accent + ';">' + escapeHtml(opts.sub) + '</div>' +
+      '</div>';
+    app.appendChild(wrap);
+    clearTimeout(pip._t);
+    pip._t = setTimeout(function () { if (el('pip')) el('pip').remove(); }, 1000);
+  }
+
+  function buy(kind, btn) {
+    var c = curStaff(); if (!c || S.busy) return;
+    var amt = -S.prices[kind];
+    var label = kind === 'coffee' ? 'コーヒー' : kind === 'tea' ? 'お茶' : '紙コップ';
+    var isDrink = kind === 'coffee' || kind === 'tea';
+    c.balance += amt; if (isDrink) { c.today += 1; c.month += 1; }
+    renderCount();
+    pip({ sound: 'ピッ', label: label, sub: signed(amt), accent: '#b9772e' }, btn);
+    S.busy = true;
+    call('recordUsage', [c.code, kind]).then(applyState).catch(function (e) { toast('記録に失敗しました: ' + e.message); refreshStaff(c.code); }).then(function () { S.busy = false; });
+  }
+  function deposit(amount, btn) {
+    var c = curStaff(); if (!c || S.busy) return;
+    c.balance += amount; renderCount();
+    pip({ sound: 'チャリーン', label: '入金', sub: signed(amount), accent: '#c9a25a' }, btn);
+    S.busy = true;
+    call('recordDeposit', [c.code, amount]).then(applyState).catch(function (e) { toast('入金に失敗しました: ' + e.message); refreshStaff(c.code); }).then(function () { S.busy = false; });
+  }
+  function undo(txId, btn) {
+    var c = curStaff(); if (!c || S.busy) return;
+    S.busy = true;
+    pip({ sound: 'とりけし', label: '取消', sub: '', accent: '#8a7458' }, btn);
+    call('undoEntry', [c.code, txId]).then(applyState).catch(function (e) { toast('取消に失敗しました: ' + e.message); }).then(function () { S.busy = false; });
+  }
+  function refreshStaff(code) { call('getStaffState', [code]).then(applyState).catch(function () {}); }
+  function openStaff(code) {
+    S.selectedCode = code;
+    var c = S.staffByCode[code]; if (c) c.history = c.history || [];
+    renderCount(); show('count'); refreshStaff(code);
+  }
+
+  // ===== ADMIN =====
+  function openAdmin() {
+    show('admin'); setTab('staff');
+    el('stats').innerHTML = '<div class="empty" style="grid-column:1 / span 6;">集計中…</div>';
+    call('getAdmin', []).then(function (a) { S.admin = a; renderAdmin(); }).catch(function (e) { toast('集計に失敗: ' + e.message); });
+  }
+  function renderAdmin() {
+    var a = S.admin; if (!a) return;
+    var s = a.summary;
+    var stats = [
+      { l: '登録スタッフ', v: s.total, u: '名', t: '#33271b' },
+      { l: '本日の総杯数', v: s.todayTotal, u: '杯', t: '#5a3a1c' },
+      { l: '今月の総杯数', v: s.monthTotal, u: '杯', t: '#5a3a1c' },
+      { l: 'マイナス残高', v: s.negCount, u: '名', t: s.negCount ? '#b23a2e' : '#2f6b4a' },
+      { l: '預り残高合計', v: yen(s.sumBal), u: '全員合計', t: '#1f3b2e' },
+      { l: '平均残高', v: yen(s.avg), u: '1名あたり', t: tone(s.avg) },
+    ];
+    el('stats').innerHTML = stats.map(function (m) {
+      return '<div class="stat"><div class="l">' + escapeHtml(m.l) + '</div><div class="v" style="color:' + m.t + ';">' + escapeHtml(String(m.v)) + '</div><div class="u">' + escapeHtml(m.u) + '</div></div>';
+    }).join('');
+
+    el('staff-rows').innerHTML = a.rows.map(function (r) {
+      return '<div class="trow cols-staff' + (r.balance < 0 ? ' neg' : '') + '">' +
+        '<span class="r-name">' + escapeHtml(r.name) + '</span>' +
+        '<span class="r-dept">' + escapeHtml(r.dept) + '</span>' +
+        '<span class="r-bal" style="color:' + tone(r.balance) + ';">' + yen(r.balance) + '</span>' +
+        '<span class="r-num">' + r.today + '</span>' +
+        '<span class="r-num">' + r.month + '</span>' +
+      '</div>';
+    }).join('');
+
+    var maxCups = a.monthly.reduce(function (m, x) { return Math.max(m, x.cups); }, 0) || 1;
+    el('monthly-rows').innerHTML = a.monthly.length ? a.monthly.map(function (x) {
+      var w = Math.round(x.cups / maxCups * 100);
+      return '<div class="trow cols-month mrow" data-month="' + escapeHtml(x.key) + '">' +
+        '<span class="m">' + escapeHtml(x.label) + '</span>' +
+        '<div class="bar"><div style="width:' + w + '%;"></div></div>' +
+        '<span class="r-num">' + x.coffee + '</span>' +
+        '<span class="r-num">' + x.tea + '</span>' +
+        '<span class="cups">' + x.cups + '</span>' +
+        '<span class="spend">' + yen(x.spend) + '</span>' +
+        '<span class="chev">›</span>' +
+      '</div>';
+    }).join('') : '<div class="empty">まだ利用データがありません</div>';
+  }
+  function setTab(tab) {
+    S.adminTab = tab; S.monthDetail = null;
+    document.querySelectorAll('.seg .tab').forEach(function (b) { b.classList.toggle('active', b.getAttribute('data-tab') === tab); });
+    el('tab-staff').style.display = tab === 'staff' ? 'flex' : 'none';
+    el('tab-month').style.display = tab === 'month' ? 'flex' : 'none';
+    el('month-list').style.display = ''; el('month-detail').style.display = 'none';
+  }
+  function openMonth(key, label) {
+    el('month-list').style.display = 'none';
+    el('month-detail').style.display = 'flex';
+    el('detail-title').textContent = label + ' のスタッフ別内訳';
+    el('detail-rows').innerHTML = '<div class="empty">読み込み中…</div>';
+    call('getMonthDetail', [key]).then(function (d) {
+      el('detail-rows').innerHTML = d.rows.length ? d.rows.map(function (r) {
+        return '<div class="trow cols-detail">' +
+          '<span class="r-name">' + escapeHtml(r.name) + '</span>' +
+          '<span class="r-dept">' + escapeHtml(r.dept) + '</span>' +
+          '<span class="r-num">' + r.coffee + '</span>' +
+          '<span class="r-num">' + r.tea + '</span>' +
+          '<span class="r-bal" style="color:#33271b;">' + r.cups + '</span>' +
+          '<span class="r-bal" style="color:#1f3b2e;">' + yen(r.spend) + '</span>' +
+        '</div>';
+      }).join('') : '<div class="empty">この月の利用はありません</div>';
+    }).catch(function () { el('detail-rows').innerHTML = '<div class="empty">取得に失敗しました</div>'; });
+  }
+
+  function wire() {
+    el('logo-home').src = window.TAMU_LOGO_SRC || '';
+    el('search').addEventListener('input', function (e) { S.q = e.target.value; renderStaffGrid(); });
+    el('btn-admin').addEventListener('click', openAdmin);
+    el('dept-chips').addEventListener('click', function (e) {
+      var b = e.target.closest('[data-dept]'); if (!b) return;
+      S.dept = b.getAttribute('data-dept'); renderChips(); renderStaffGrid();
+    });
+    el('staff-grid').addEventListener('click', function (e) {
+      var b = e.target.closest('[data-code]'); if (!b) return; openStaff(b.getAttribute('data-code'));
+    });
+    document.querySelectorAll('[data-go="home"]').forEach(function (b) {
+      b.addEventListener('click', function () { S.selectedCode = null; show('home'); });
+    });
+    el('screen-count').addEventListener('click', function (e) {
+      var buyBtn = e.target.closest('[data-buy]'); if (buyBtn) { buy(buyBtn.getAttribute('data-buy'), buyBtn); return; }
+      var coinBtn = e.target.closest('[data-coin]'); if (coinBtn) { deposit(Number(coinBtn.getAttribute('data-coin')), coinBtn); return; }
+      var undoBtn = e.target.closest('[data-undo]'); if (undoBtn) { undo(undoBtn.getAttribute('data-undo'), undoBtn); return; }
+    });
+    document.querySelectorAll('.seg .tab').forEach(function (b) {
+      b.addEventListener('click', function () { setTab(b.getAttribute('data-tab')); });
+    });
+    el('monthly-rows').addEventListener('click', function (e) {
+      var m = e.target.closest('[data-month]'); if (!m) return;
+      var key = m.getAttribute('data-month');
+      var row = S.admin.monthly.filter(function (x) { return x.key === key; })[0];
+      openMonth(key, row ? row.label : key);
+    });
+    el('month-back').addEventListener('click', function () {
+      el('month-list').style.display = ''; el('month-detail').style.display = 'none';
+    });
+  }
+
+  function init() {
+    wire();
+    call('getInit', []).then(function (data) {
+      S.depts = data.depts || []; S.staff = data.staff || [];
+      S.prices = data.prices || S.prices; S.depositOptions = data.depositOptions || S.depositOptions;
+      S.staffByCode = {};
+      S.staff.forEach(function (s) { s.history = []; S.staffByCode[s.code] = s; });
+      el('price-coffee').textContent = S.prices.coffee;
+      el('price-tea').textContent = S.prices.tea;
+      el('price-cup').textContent = S.prices.cup;
+      renderChips(); renderStaffGrid(); renderCoins();
+      el('loading').style.display = 'none';
+    }).catch(function (e) {
+      el('loading').innerHTML = '初期化に失敗しました。マスタ同期（setup）を実行してください。<br><small>' + escapeHtml(e.message) + '</small>';
+    });
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
+})();
+</script>

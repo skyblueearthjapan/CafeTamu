@@ -2,11 +2,34 @@
  * 共用モデル：検索で誰でも選択してカウントできる（給茶機横の共用端末／各自スマホ兼用）。
  */
 
-function doGet() {
-  const t = HtmlService.createTemplateFromFile('Index');
-  return t.evaluate()
-    .setTitle('喫茶Tamu カウントアプリ')
-    .addMetaTag('viewport', 'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no');
+function doGet(e) {
+  const view = (e && e.parameter && e.parameter.view) || '';
+
+  // ?view 未指定 → 端末判定ルーターを返す（同URLに ?view=tablet/mobile を付けて再アクセス）
+  if (view !== 'tablet' && view !== 'mobile') {
+    const r = HtmlService.createTemplateFromFile('Router');
+    r.execUrl = getExecUrl_();
+    return r.evaluate()
+      .setTitle('喫茶Tamu カウントアプリ')
+      .addMetaTag('viewport', 'width=device-width, initial-scale=1');
+  }
+
+  const file = view === 'tablet' ? 'IndexTablet' : 'Index';
+  const t = HtmlService.createTemplateFromFile(file);
+  const out = t.evaluate().setTitle('喫茶Tamu カウントアプリ');
+  return view === 'tablet'
+    ? out.addMetaTag('viewport', 'width=device-width, initial-scale=1')
+    : out.addMetaTag('viewport', 'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no');
+}
+
+/** デプロイ済みウェブアプリの実行URL（ルーターのリダイレクト先） */
+function getExecUrl_() {
+  try {
+    const u = ScriptApp.getService().getUrl();
+    return u || '';
+  } catch (err) {
+    return '';
+  }
 }
 
 /** HTML 部分テンプレートの取り込み */

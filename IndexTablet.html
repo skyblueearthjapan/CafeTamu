@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <base target="_top">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;600;700;800&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&family=Klee+One:wght@400;600&display=swap" rel="stylesheet">
+  <?!= include('CssTablet'); ?>
+</head>
+<body>
+  <div id="app">
+
+    <!-- ============ HOME ============ -->
+    <section class="screen active" id="screen-home">
+      <div class="home-hdr">
+        <div style="display:flex; align-items:center; gap:16px;">
+          <img class="logo" id="logo-home" alt="LINE W">
+          <span class="serif" style="font-weight:800; font-size:32px; letter-spacing:.06em;">喫茶Tamu</span>
+          <span class="cursive" style="font-size:18px; color:#c9a86f;">給茶コーナー</span>
+        </div>
+        <button class="btn-ghost" id="btn-admin">管理画面</button>
+      </div>
+      <div class="home-body">
+        <div class="home-top">
+          <h1>ご利用の方を選んでください</h1>
+          <div class="search-wrap">
+            <span class="ic">⌕</span>
+            <input id="search" type="search" placeholder="氏名・部署で検索" autocomplete="off">
+          </div>
+        </div>
+        <div class="chips" id="dept-chips"></div>
+        <div class="staff-scroll scroll">
+          <div class="staff-grid" id="staff-grid"></div>
+          <div id="no-results" style="display:none;"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ COUNT（券売機） ============ -->
+    <section class="screen" id="screen-count">
+      <div class="count-hdr">
+        <div style="display:flex; align-items:center; gap:20px;">
+          <button class="btn-ghost sm" data-go="home">← 戻る</button>
+          <div class="who">
+            <span class="nm serif" id="count-name"></span>
+            <span class="dp" id="count-dept"></span>
+          </div>
+        </div>
+        <div style="display:flex; gap:10px;">
+          <div class="stat-box"><div class="k">本日</div><div class="v"><span id="led-today">0</span><small> 杯</small></div></div>
+          <div class="stat-box"><div class="k">今月</div><div class="v"><span id="led-month">0</span><small> 杯</small></div></div>
+        </div>
+      </div>
+      <div class="count-body">
+        <!-- 機械（左） -->
+        <div class="machine">
+          <div class="led">
+            <span class="lab">のこり ざんだか</span>
+            <span class="num" id="led-balance">¥0</span>
+          </div>
+          <div class="warn" id="neg-warn" style="display:none;">⚠ 残高がマイナスです。<br>必ずお支払いボックスに現金を入れてから、コイン投入口で入金してください。</div>
+          <div class="drink-grid">
+            <button class="btn-drink btn-coffee" data-buy="coffee">
+              <span class="name">コーヒー</span>
+              <span class="price">¥<span id="price-coffee">20</span></span>
+            </button>
+            <button class="btn-drink btn-tea" data-buy="tea">
+              <span class="name">お茶</span>
+              <span class="price">¥<span id="price-tea">10</span></span>
+            </button>
+            <button class="btn-cup" data-buy="cup">
+              <span class="name">紙コップを使う</span>
+              <span class="price">＋¥<span id="price-cup">10</span></span>
+            </button>
+          </div>
+        </div>
+        <!-- コイン投入口＋履歴（右） -->
+        <div class="side">
+          <div class="coin-panel">
+            <div class="ttl">コイン投入口</div>
+            <div class="sub">お支払いボックスに現金を入れてから、<br>金額をタップ</div>
+            <div class="coin-list" id="coin-list"></div>
+            <div class="rule">
+              <span class="r1">入金は100円から</span>
+              <span class="r2">※10円玉での入金はできません</span>
+            </div>
+          </div>
+          <div class="hist-panel">
+            <div class="ttl">直近の利用・取消</div>
+            <div class="hist-scroll scroll" id="hist-list"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ ADMIN ============ -->
+    <section class="screen" id="screen-admin">
+      <div class="admin-hdr">
+        <div style="display:flex; align-items:center; gap:18px;">
+          <button class="btn-ghost sm" data-go="home" style="background:#1f3b2e;">← 戻る</button>
+          <span class="serif" style="font-weight:700; font-size:28px;">全体集計</span>
+          <span class="cursive" style="font-size:16px; color:#c9a86f;">管理者用ダッシュボード</span>
+        </div>
+        <div class="seg">
+          <button class="tab active" data-tab="staff">スタッフ別</button>
+          <button class="tab" data-tab="month">月別推移</button>
+        </div>
+      </div>
+      <div class="admin-body">
+        <div class="stats" id="stats"></div>
+
+        <!-- スタッフ別 -->
+        <div class="panel" id="tab-staff" style="display:flex; flex-direction:column;">
+          <div class="thead cols-staff">
+            <span>氏名</span><span>部署</span><span style="text-align:right;">残高</span><span style="text-align:right;">本日</span><span style="text-align:right;">今月</span>
+          </div>
+          <div id="staff-rows"></div>
+        </div>
+
+        <!-- 月別推移 -->
+        <div id="tab-month" style="display:none; flex:1; min-height:0; flex-direction:column;">
+          <div class="panel pad" id="month-list">
+            <div class="thead cols-month" style="position:static; background:transparent; border:none; padding:8px 10px 12px;">
+              <span>月</span><span>杯数の推移 <span style="color:#b9772e; font-weight:500;">（行をタップで内訳）</span></span><span style="text-align:right;">コーヒー</span><span style="text-align:right;">お茶</span><span style="text-align:right;">合計杯数</span><span style="text-align:right;">利用額</span><span></span>
+            </div>
+            <div id="monthly-rows"></div>
+          </div>
+          <div id="month-detail" style="display:none; flex:1; min-height:0; flex-direction:column;">
+            <div class="month-head">
+              <button class="btn-ghost sm" id="month-back" style="background:#fffaf0; border-color:#cbb78e; color:#5a3a1c;">← 月別一覧へ</button>
+              <span class="serif" id="detail-title" style="font-weight:700; font-size:24px; color:#1f3b2e;"></span>
+              <span class="cursive" style="font-size:14px; color:#9c8055;">利用杯数の多い順</span>
+            </div>
+            <div class="panel" style="flex:1; min-height:0;">
+              <div class="thead cols-detail">
+                <span>氏名</span><span>部署</span><span style="text-align:right;">コーヒー</span><span style="text-align:right;">お茶</span><span style="text-align:right;">合計杯数</span><span style="text-align:right;">利用額</span>
+              </div>
+              <div id="detail-rows"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="loading" id="loading">読み込み中…</div>
+  </div>
+
+  <?!= include('Logo'); ?>
+  <?!= include('JsTablet'); ?>
+</body>
+</html>
