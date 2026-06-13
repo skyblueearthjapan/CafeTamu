@@ -91,9 +91,13 @@
   .btn-drink .price { border-radius: 999px; padding: 4px 18px; font-family: "Shippori Mincho", serif; font-weight: 700; font-size: 20px; }
   .btn-coffee .name { color: #2b1c0e; } .btn-coffee .price { background: #2b1c0e; color: #f0d9a8; }
   .btn-tea .name { color: #1c3318; } .btn-tea .price { background: #1c3318; color: #c8e0bd; }
-  .btn-cup { grid-column: 1 / span 2; cursor: pointer; border: none; border-radius: 16px; background: linear-gradient(180deg,#eef6fb,#cfe3ef); box-shadow: 0 6px 0 #9fc0d4, inset 0 2px 4px #ffffff; padding: 18px 16px; display: flex; align-items: center; justify-content: center; gap: 14px; transition: transform .04s, box-shadow .04s; }
-  .btn-cup:active { transform: translateY(4px); box-shadow: 0 2px 0 #9fc0d4, inset 0 2px 4px #ffffff; }
-  .btn-cup .name { font-family: "Shippori Mincho", serif; font-weight: 700; font-size: 21px; color: #3a5566; }
+  .btn-cup { grid-column: 1 / span 2; cursor: pointer; border: none; border-radius: 16px; background: linear-gradient(180deg,#fffdf8,#f3ecdc); box-shadow: 0 6px 0 #d9c9a8, inset 0 2px 4px #ffffff; padding: 16px; display: flex; align-items: center; justify-content: center; gap: 14px; transition: transform .04s, box-shadow .04s; }
+  .btn-cup:active { transform: translateY(4px); box-shadow: 0 2px 0 #d9c9a8, inset 0 2px 4px #ffffff; }
+  /* ボタン内のレトロ喫茶アイコン */
+  .btn-drink .ic, .btn-cup .ic { display: flex; align-items: center; justify-content: center; }
+  .btn-drink .ic-svg { height: 58px; width: auto; display: block; }
+  .btn-cup .ic-svg { height: 50px; width: auto; display: block; }
+  .btn-cup .name { font-family: "Shippori Mincho", serif; font-weight: 700; font-size: 21px; color: var(--brown); }
   .btn-cup .price { background: var(--amber); color: #fff8ec; border-radius: 999px; padding: 5px 18px; font-family: "Shippori Mincho", serif; font-weight: 700; font-size: 18px; }
 
   /* 入金（コイン投入口） */
