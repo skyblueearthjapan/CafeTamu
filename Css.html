@@ -1,0 +1,155 @@
+<style>
+  /* ===== 喫茶Tamu カウントアプリ — レトロ純喫茶（深緑×クリーム）配色 ===== */
+  :root {
+    --green: #1f3b2e;
+    --green-dark: #16291f;
+    --green-line: #4f7a63;
+    --green-line2: #355c46;
+    --cream: #f3e8d2;
+    --cream-2: #fffaf0;
+    --cream-3: #fcf6e8;
+    --ink: #33271b;
+    --brown: #5a3a1c;
+    --tan: #9c8055;
+    --tan-2: #c9a86f;
+    --amber: #b9772e;
+    --red: #b23a2e;
+    --green-pos: #2f6b4a;
+    --led-amber: #ffc24d;
+    --led-red: #ff6b5a;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; height: 100%; }
+  body {
+    font-family: "Zen Kaku Gothic New", sans-serif;
+    -webkit-font-smoothing: antialiased;
+    background: var(--cream);
+    color: var(--ink);
+    overscroll-behavior: none;
+  }
+  .serif { font-family: "Shippori Mincho", serif; }
+  .cursive { font-family: "Klee One", cursive; }
+
+  /* アプリ枠：実機は全画面、PC では中央にモバイル幅で表示 */
+  #app {
+    position: relative;
+    width: 100%;
+    max-width: 440px;
+    margin: 0 auto;
+    height: 100vh;
+    height: 100dvh;
+    background: var(--cream);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 0 40px rgba(0,0,0,.18);
+  }
+
+  .screen { flex: 1; min-height: 0; display: none; flex-direction: column; }
+  .screen.active { display: flex; }
+
+  .scroll { flex: 1; min-height: 0; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+  .scroll::-webkit-scrollbar { width: 0; height: 0; }
+
+  /* ヘッダー */
+  .hdr { flex: none; background: var(--green); color: var(--cream); padding: 14px 18px 16px; box-shadow: 0 3px 0 var(--green-dark); }
+  .hdr-dark { background: var(--green-dark); }
+  .logo-tile { width: 34px; height: 34px; border-radius: 9px; background: var(--green-dark); display: flex; align-items: center; justify-content: center; overflow: hidden; flex: none; }
+  .logo-tile img { width: 32px; height: 32px; display: block;
+    /* 黒地ロゴを緑タイル上でクリーム/緑に再着色（チャット最終仕様） */
+    filter: invert(1) sepia(1) hue-rotate(70deg) saturate(1.4) brightness(0.92); }
+  .btn-ghost { border: 1px solid var(--green-line); background: var(--green-dark); color: #cfe3d4; cursor: pointer; border-radius: 10px; padding: 8px 14px; font-size: 14px; }
+
+  .search-wrap { position: relative; }
+  .search-wrap .ic { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); font-size: 18px; color: var(--tan); }
+  .search-wrap input { width: 100%; padding: 13px 14px 13px 40px; border-radius: 12px; border: none; background: var(--cream-2); font-size: 16px; color: var(--ink); font-family: "Zen Kaku Gothic New", sans-serif; outline: none; }
+
+  /* 部署チップ（折り返し／横スクロールなし） */
+  .chips { flex: none; display: flex; flex-wrap: wrap; gap: 8px; padding: 12px 18px; }
+  .chip { flex: none; border: 1px solid #d8c49c; background: var(--cream-2); color: var(--brown); cursor: pointer; border-radius: 999px; padding: 8px 16px; font-size: 14px; font-weight: 500; }
+  .chip.active { border-color: var(--green); background: var(--green); color: var(--cream); }
+
+  /* スタッフ一覧 */
+  .staff-list { padding: 0 18px 18px; display: flex; flex-direction: column; gap: 10px; }
+  .staff-card { text-align: left; cursor: pointer; border: 1px solid #e3d4b3; background: var(--cream-2); border-radius: 14px; padding: 14px 16px; display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 64px; }
+  .staff-card.neg { background: #fbeeec; border-color: #e6c4be; }
+  .empty { padding: 40px; text-align: center; color: var(--tan); }
+
+  /* カウント */
+  .count-body { padding: 16px; display: flex; flex-direction: column; gap: 14px; }
+  .led { background: #14110c; border-radius: 18px; border: 2px solid #3a2c1f; padding: 16px 20px; box-shadow: inset 0 0 20px #00000099; }
+  .led .top { display: flex; align-items: center; justify-content: space-between; }
+  .led .pill { background: var(--green); border: 1px solid var(--green-line2); border-radius: 8px; padding: 3px 9px; font-size: 12px; color: #cfe3d4; }
+  .led .num { font-family: "Shippori Mincho", serif; font-weight: 800; font-size: 52px; line-height: 1.1; text-align: right; }
+  .warn { background: var(--red); color: #fff; border-radius: 12px; padding: 11px 15px; font-size: 14px; font-weight: 500; line-height: 1.5; }
+
+  .drink-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .btn-drink { cursor: pointer; border: none; border-radius: 16px; padding: 22px 12px; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+  .btn-coffee { background: linear-gradient(180deg,#caa468,#a87f3f); box-shadow: 0 6px 0 #7c5a28, inset 0 2px 4px #f0d9a8; }
+  .btn-tea { background: linear-gradient(180deg,#8fb083,#5f8a56); box-shadow: 0 6px 0 #436b3c, inset 0 2px 4px #c8e0bd; }
+  .btn-drink .name { font-family: "Shippori Mincho", serif; font-weight: 700; font-size: 26px; }
+  .btn-drink .price { border-radius: 999px; padding: 4px 18px; font-family: "Shippori Mincho", serif; font-weight: 700; font-size: 20px; }
+  .btn-coffee .name { color: #2b1c0e; } .btn-coffee .price { background: #2b1c0e; color: #f0d9a8; }
+  .btn-tea .name { color: #1c3318; } .btn-tea .price { background: #1c3318; color: #c8e0bd; }
+  .btn-cup { grid-column: 1 / span 2; cursor: pointer; border: 2px dashed #c2a878; border-radius: 16px; background: var(--cream-3); padding: 16px; display: flex; align-items: center; justify-content: center; gap: 14px; }
+  .btn-cup .name { font-family: "Shippori Mincho", serif; font-weight: 700; font-size: 21px; color: var(--brown); }
+  .btn-cup .price { background: var(--amber); color: #fff8ec; border-radius: 999px; padding: 5px 18px; font-family: "Shippori Mincho", serif; font-weight: 700; font-size: 18px; }
+
+  /* 入金（コイン投入口） */
+  .deposit { background: var(--green); border-radius: 16px; padding: 14px 16px; }
+  .deposit .ttl { font-family: "Klee One", cursive; font-size: 14px; color: #9fc0ac; margin-bottom: 3px; }
+  .deposit .sub { font-size: 12px; color: #7fa089; margin-bottom: 10px; }
+  .coin-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+  .btn-coin { cursor: pointer; border: none; border-radius: 12px; background: linear-gradient(180deg,#e8c98c,#c9a25a); box-shadow: 0 4px 0 #9c7a3e, inset 0 2px 3px #f7ecd0; padding: 13px 4px; font-family: "Shippori Mincho", serif; font-weight: 700; font-size: 19px; color: #3a2812; }
+  .rule { margin-top: 11px; background: var(--green-dark); border: 1px solid #c08a3a; border-radius: 10px; padding: 10px 12px; display: flex; flex-direction: column; gap: 3px; }
+  .rule .r1 { font-size: 13px; color: #fff; font-weight: 700; line-height: 1.4; }
+  .rule .r2 { font-size: 12px; color: #f0d9a8; line-height: 1.45; }
+
+  /* 履歴 */
+  .hist-ttl { font-family: "Klee One", cursive; font-size: 14px; color: #7a6a55; margin-bottom: 8px; }
+  .hist-list { display: flex; flex-direction: column; gap: 8px; }
+  .hist-row { display: flex; align-items: center; justify-content: space-between; background: var(--cream-2); border: 1px solid #e3d4b3; border-radius: 12px; padding: 10px 14px; }
+  .hist-row .amt { font-family: "Shippori Mincho", serif; font-weight: 700; font-size: 17px; }
+  .btn-undo { border: 1px solid #d6b8b3; background: #fbeeec; color: var(--red); cursor: pointer; border-radius: 8px; padding: 5px 12px; font-size: 13px; }
+
+  /* 管理 */
+  .tabs { flex: none; display: flex; gap: 6px; padding: 12px 16px 0; }
+  .tab { flex: 1; border: 1px solid #cbb78e; cursor: pointer; border-radius: 10px; padding: 10px; font-size: 15px; font-weight: 500; background: var(--cream-2); color: var(--tan); }
+  .tab.active { background: var(--green); color: var(--cream); }
+  .summary { flex: none; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; padding: 10px 16px 12px; border-bottom: 1px solid #e0d2b2; background: #efe6d0; }
+  .stat { background: var(--cream-2); border: 1px solid #e3d4b3; border-radius: 9px; padding: 6px 9px; }
+  .stat .l { font-size: 10px; color: var(--tan); line-height: 1.25; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .stat .v { font-family: "Shippori Mincho", serif; font-weight: 700; font-size: 16px; line-height: 1.3; white-space: nowrap; }
+  .admin-body { padding: 14px 16px 18px; }
+  .rowlist { display: flex; flex-direction: column; gap: 8px; }
+  .arow { display: flex; align-items: center; justify-content: space-between; background: var(--cream-2); border: 1px solid #e3d4b3; border-radius: 12px; padding: 11px 14px; }
+  .arow.neg { background: #fbeeec; }
+  .arow .amt { font-family: "Shippori Mincho", serif; font-weight: 700; font-size: 18px; }
+  .month-hint { font-family: "Klee One", cursive; font-size: 13px; color: var(--amber); margin-bottom: 2px; }
+  .mrow { background: var(--cream-2); border: 1px solid #e3d4b3; border-radius: 12px; padding: 12px 14px; cursor: pointer; }
+  .mrow .head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+  .mrow .bar { height: 14px; background: #eadfc4; border-radius: 999px; overflow: hidden; }
+  .mrow .bar > div { height: 100%; background: linear-gradient(90deg,#3f7a4a,#6f9a62); }
+
+  /* 「ピッ」スタンプ演出 */
+  @keyframes tamuPip {
+    0%   { transform: translate(-50%,-50%) scale(.5) rotate(-8deg); opacity: 0; }
+    16%  { transform: translate(-50%,-50%) scale(1.1) rotate(-4deg); opacity: 1; }
+    34%  { transform: translate(-50%,-50%) scale(.98) rotate(-6deg); opacity: 1; }
+    78%  { transform: translate(-50%,-50%) scale(1) rotate(-6deg); opacity: 1; }
+    100% { transform: translate(-50%,-62%) scale(1) rotate(-6deg); opacity: 0; }
+  }
+  @keyframes tamuRing {
+    0%   { transform: translate(-50%,-50%) scale(.5); opacity: .5; }
+    100% { transform: translate(-50%,-50%) scale(1.8); opacity: 0; }
+  }
+  #pip { position: absolute; z-index: 60; pointer-events: none; transform: translate(-50%,-50%); }
+  #pip .ring { position: absolute; left: 50%; top: 50%; width: 132px; height: 132px; border-radius: 50%; border: 4px solid; animation: tamuRing 700ms ease-out forwards; }
+  #pip .stamp { width: 124px; height: 124px; border-radius: 50%; background: var(--cream); border: 5px solid; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 0 12px 26px -8px rgba(0,0,0,.4); }
+  #pip .stamp .snd { font-family: "Klee One", cursive; font-weight: 600; line-height: 1; text-align: center; }
+  #pip .stamp .lbl { font-family: "Shippori Mincho", serif; font-weight: 700; font-size: 15px; color: var(--ink); margin-top: 5px; }
+  #pip .stamp .sub { font-family: "Shippori Mincho", serif; font-weight: 700; font-size: 19px; margin-top: 1px; }
+
+  .loading { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: var(--cream); z-index: 80; color: var(--tan); font-family: "Klee One", cursive; }
+  .toast { position: absolute; left: 50%; bottom: 24px; transform: translateX(-50%); background: var(--green-dark); color: var(--cream); padding: 10px 18px; border-radius: 12px; font-size: 14px; z-index: 90; box-shadow: 0 8px 20px -6px rgba(0,0,0,.5); max-width: 90%; }
+</style>

@@ -1,0 +1,16 @@
+# clasp push 対象を「トップレベルのプロジェクトファイルのみ」に限定する。
+# 既定で全ファイルを対象にし、ここで列挙したものを除外する。
+**/**
+
+# 以下は push する（除外の打ち消し）
+!appsscript.json
+!Code.js
+!Config.js
+!Util.js
+!Db.js
+!MasterSync.js
+!Ledger.js
+!Index.html
+!Css.html
+!Js.html
+!Logo.html
