@@ -36,9 +36,17 @@
       if (forced === 'tablet' || forced === 'mobile') {
         view = forced;
       } else {
-        var w = window.innerWidth, h = window.innerHeight;
-        // 横幅が広く（タブレット/PC）かつ横長 → 券売機(タブレット)版。それ以外 → スマホ版
-        view = (w >= 820 && w >= h * 0.9) ? 'tablet' : 'mobile';
+        // GAS のサンドボックス iframe 内では <meta viewport> が無視され、
+        // window.innerWidth が端末実幅ではなく iframe 幅（PC相当）を返すことがある。
+        // そのため UA と screen.width も併用して堅牢に判定する。
+        var ua = navigator.userAgent || '';
+        var isMobileUA = /Android|iPhone|iPod|IEMobile|BlackBerry|Opera Mini|Mobile/i.test(ua);
+        var widths = [];
+        if (window.innerWidth) widths.push(window.innerWidth);
+        if (window.screen && window.screen.width) widths.push(window.screen.width);
+        var eff = widths.length ? Math.min.apply(null, widths) : 0;
+        // モバイル端末、または有効幅が狭い → スマホ版。広い画面(タブレット/PC) → 券売機版。
+        view = (isMobileUA || (eff && eff < 820)) ? 'mobile' : 'tablet';
       }
       var tpl = document.getElementById('tpl-' + view);
       document.getElementById('root').innerHTML = tpl.innerHTML;
