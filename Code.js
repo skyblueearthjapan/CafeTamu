@@ -9,6 +9,7 @@ function doGet(e) {
   const forced = (e && e.parameter && e.parameter.view) || '';
   const t = HtmlService.createTemplateFromFile('Index');
   t.forcedView = (forced === 'tablet' || forced === 'mobile') ? forced : '';
+  t.portalUrl = CONFIG.PORTAL_URL || '';
   return t.evaluate()
     .setTitle('喫茶Tamu')
     .addMetaTag('viewport', 'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no');

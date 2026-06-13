@@ -35,6 +35,10 @@ const CONFIG = {
   // 入金ボタン（100円単位のみ。10円玉での入金は禁止）
   DEPOSIT_OPTIONS: [100, 500, 1000],
 
+  // 社内ポータルサイトURL（ヘッダー右上「社内ポータルへ移動」ボタンの遷移先）
+  // Car-Management-System と同じポータルを参照。変更する場合はここを書き換える。
+  PORTAL_URL: 'https://script.google.com/a/macros/lineworks-local.info/s/AKfycbx2eyJMOYP9o--GPBuhY-pj071IIR6Kqb_0xALwwNzdLQZux0dIAlL3P9EoCucnzXA/exec',
+
   // 取引種別
   TX_TYPE: {
     COFFEE: 'coffee',

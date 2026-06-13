@@ -238,6 +238,7 @@
 
   function wire() {
     el('logo-home').src = window.TAMU_LOGO_SRC || '';
+    var portal = el('btn-portal'); if (portal) portal.href = window.TAMU_PORTAL_URL || '#';
     el('search').addEventListener('input', function (e) { S.q = e.target.value; renderStaffGrid(); });
     el('btn-admin').addEventListener('click', openAdmin);
     el('dept-chips').addEventListener('click', function (e) {
