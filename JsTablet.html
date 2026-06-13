@@ -286,7 +286,7 @@
     });
   }
 
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
-  else init();
+  // ブートストラップ（Index.html）が端末判定後にビューを注入してから呼ぶ
+  window.initTamuTablet = init;
 })();
 </script>

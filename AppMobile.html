@@ -1,0 +1,116 @@
+  <div id="app">
+
+    <!-- ============ HOME ============ -->
+    <section class="screen active" id="screen-home">
+      <div class="hdr">
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;">
+          <div style="display:flex; align-items:center; gap:10px;">
+            <span class="logo-tile"><img id="logo-home" alt="LINE W"></span>
+            <span class="serif" style="font-weight:800; font-size:24px;">喫茶Tamu</span>
+          </div>
+          <button class="btn-ghost" id="btn-admin">管理</button>
+        </div>
+        <div class="search-wrap">
+          <span class="ic">⌕</span>
+          <input id="search" type="search" placeholder="氏名・部署で検索" autocomplete="off">
+        </div>
+      </div>
+      <div class="chips" id="dept-chips"></div>
+      <div class="scroll">
+        <div class="staff-list" id="staff-list"></div>
+      </div>
+    </section>
+
+    <!-- ============ COUNT ============ -->
+    <section class="screen" id="screen-count">
+      <div class="hdr" style="display:flex; align-items:center; gap:12px; padding:13px 16px;">
+        <button class="btn-ghost" data-go="home" style="padding:9px 13px; font-size:15px;">←</button>
+        <div style="display:flex; flex-direction:column; line-height:1.2;">
+          <span class="serif" id="count-name" style="font-weight:700; font-size:21px;"></span>
+          <span id="count-dept" style="font-size:12px; color:#c9a86f;"></span>
+        </div>
+      </div>
+      <div class="scroll">
+        <div class="count-body">
+          <!-- 残高 LED -->
+          <div class="led">
+            <div class="top">
+              <span class="cursive" style="font-size:14px; color:#7d6a4a;">のこり ざんだか</span>
+              <div style="display:flex; gap:7px;">
+                <span class="pill">本日 <b id="led-today">0</b>杯</span>
+                <span class="pill">今月 <b id="led-month">0</b>杯</span>
+              </div>
+            </div>
+            <div class="num" id="led-balance">¥0</div>
+          </div>
+          <div class="warn" id="neg-warn" style="display:none;">⚠ 残高がマイナスです。<br>必ずお支払いボックスに現金を入れてから、<br>コイン投入口で入金してください。</div>
+
+          <!-- ドリンク -->
+          <div class="drink-grid">
+            <button class="btn-drink btn-coffee" data-buy="coffee">
+              <span class="name">コーヒー</span>
+              <span class="price">¥<span id="price-coffee">20</span></span>
+            </button>
+            <button class="btn-drink btn-tea" data-buy="tea">
+              <span class="name">お茶</span>
+              <span class="price">¥<span id="price-tea">10</span></span>
+            </button>
+            <button class="btn-cup" data-buy="cup">
+              <span class="name">紙コップを使う</span>
+              <span class="price">＋¥<span id="price-cup">10</span></span>
+            </button>
+          </div>
+
+          <!-- 入金（コイン投入口） -->
+          <div class="deposit">
+            <div class="ttl">コイン投入口</div>
+            <div class="sub">お支払いボックスに現金を入れてから、金額をタップ</div>
+            <div class="coin-grid" id="coin-grid"></div>
+            <div class="rule">
+              <span class="r1">入金は100円から</span>
+              <span class="r2">※10円玉での入金はできません</span>
+            </div>
+          </div>
+
+          <!-- 履歴 -->
+          <div>
+            <div class="hist-ttl">直近の利用・取消</div>
+            <div class="hist-list" id="hist-list"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ ADMIN ============ -->
+    <section class="screen" id="screen-admin">
+      <div class="hdr hdr-dark" style="display:flex; align-items:center; gap:12px; padding:13px 16px;">
+        <button class="btn-ghost" data-go="home" style="background:#1f3b2e; padding:9px 13px; font-size:15px;">←</button>
+        <span class="serif" style="font-weight:700; font-size:22px;">全体集計</span>
+      </div>
+      <div class="tabs">
+        <button class="tab active" data-tab="staff">スタッフ別</button>
+        <button class="tab" data-tab="month">月別推移</button>
+      </div>
+      <div class="summary" id="summary"></div>
+      <div class="scroll">
+        <div class="admin-body">
+          <div id="tab-staff"><div class="rowlist" id="staff-rows"></div></div>
+          <div id="tab-month" style="display:none;">
+            <div id="month-list">
+              <div class="month-hint">タップでその月のスタッフ別内訳</div>
+              <div class="rowlist" id="monthly-rows"></div>
+            </div>
+            <div id="month-detail" style="display:none;">
+              <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
+                <button class="btn-undo" id="month-back" style="border-color:#cbb78e; background:#fffaf0; color:#5a3a1c;">← 月別</button>
+                <span class="serif" id="detail-title" style="font-weight:700; font-size:19px; color:#1f3b2e;"></span>
+              </div>
+              <div class="rowlist" id="detail-rows"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="loading" id="loading">読み込み中…</div>
+  </div>

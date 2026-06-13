@@ -3,33 +3,15 @@
  */
 
 function doGet(e) {
-  const view = (e && e.parameter && e.parameter.view) || '';
-
-  // ?view 未指定 → 端末判定ルーターを返す（同URLに ?view=tablet/mobile を付けて再アクセス）
-  if (view !== 'tablet' && view !== 'mobile') {
-    const r = HtmlService.createTemplateFromFile('Router');
-    r.execUrl = getExecUrl_();
-    return r.evaluate()
-      .setTitle('喫茶Tamu カウントアプリ')
-      .addMetaTag('viewport', 'width=device-width, initial-scale=1');
-  }
-
-  const file = view === 'tablet' ? 'IndexTablet' : 'Index';
-  const t = HtmlService.createTemplateFromFile(file);
-  const out = t.evaluate().setTitle('喫茶Tamu カウントアプリ');
-  return view === 'tablet'
-    ? out.addMetaTag('viewport', 'width=device-width, initial-scale=1')
-    : out.addMetaTag('viewport', 'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no');
-}
-
-/** デプロイ済みウェブアプリの実行URL（ルーターのリダイレクト先） */
-function getExecUrl_() {
-  try {
-    const u = ScriptApp.getService().getUrl();
-    return u || '';
-  } catch (err) {
-    return '';
-  }
+  // 単一ページを返し、クライアント側で端末判定してスマホ／タブレット版を出し分ける
+  // （GAS サンドボックスはジェスチャー無しのトップ遷移を禁止するため、リダイレクトはしない）。
+  // ?view=tablet / ?view=mobile を付ければ手動で固定できる（検証用）。
+  const forced = (e && e.parameter && e.parameter.view) || '';
+  const t = HtmlService.createTemplateFromFile('Index');
+  t.forcedView = (forced === 'tablet' || forced === 'mobile') ? forced : '';
+  return t.evaluate()
+    .setTitle('喫茶Tamu カウントアプリ')
+    .addMetaTag('viewport', 'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no');
 }
 
 /** HTML 部分テンプレートの取り込み */
