@@ -1,37 +1,32 @@
-<!-- 昭和レトロ純喫茶イメージのオリジナルSVGアイコン（スプライト）
+<!-- 昭和レトロ純喫茶の喫茶アイコン（ユーザー提供SVGをスプライト化）
      コーヒー＝コーヒーカップ / お茶＝湯飲み茶碗 / 紙コップ＝紙コップ
      ライブDOMに一度だけ配置し、各ボタンから <use href="#ic-..."> で参照する -->
 <svg width="0" height="0" style="position:absolute; overflow:hidden;" aria-hidden="true" focusable="false">
   <defs>
-    <!-- コーヒーカップ（受け皿・取っ手・湯気） -->
-    <symbol id="ic-coffee" viewBox="0 0 120 96">
-      <g fill="none" stroke="#5a3320" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" opacity="0.6">
-        <path d="M50 10 q-7 7 0 14 q7 7 0 14" />
-        <path d="M66 8 q-7 7 0 14 q7 7 0 14" />
-      </g>
-      <ellipse cx="58" cy="86" rx="46" ry="8" fill="#fff6e3" stroke="#5a3320" stroke-width="4"/>
-      <path d="M84 50 c20 0 20 24 0 24" fill="none" stroke="#5a3320" stroke-width="7" stroke-linecap="round"/>
-      <path d="M26 44 C26 44 30 80 58 80 C86 80 90 44 90 44 Z" fill="#fff6e3" stroke="#5a3320" stroke-width="4" stroke-linejoin="round"/>
-      <ellipse cx="58" cy="44" rx="32" ry="8" fill="#7a4f28" stroke="#5a3320" stroke-width="4"/>
+    <!-- コーヒーカップ -->
+    <symbol id="ic-coffee" viewBox="0 0 64 64" fill="none">
+      <path d="M27 9 c-3 3 -3 6 0 9 M36 9 c-3 3 -3 6 0 9" stroke="#2b1c0e" stroke-width="2.6" stroke-linecap="round"></path>
+      <ellipse cx="31" cy="53" rx="21" ry="4" fill="#2b1c0e"></ellipse>
+      <path d="M14 25 h34 l-2.6 17 c-0.7 4.5 -4.5 7 -9 7 h-10.8 c-4.5 0 -8.3 -2.5 -9 -7 z" fill="#2b1c0e"></path>
+      <ellipse cx="31" cy="26" rx="17" ry="3.6" fill="#caa468"></ellipse>
+      <path d="M48 29 c9 0 12 5 9.5 11 c-1.8 4.2 -6.5 5 -10 3.6" stroke="#2b1c0e" stroke-width="4.2" stroke-linecap="round"></path>
     </symbol>
 
-    <!-- 湯飲み茶碗（取っ手なし・帯模様・湯気） -->
-    <symbol id="ic-tea" viewBox="0 0 110 96">
-      <g fill="none" stroke="#16402c" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" opacity="0.55">
-        <path d="M44 10 q-7 7 0 14 q7 7 0 14" />
-        <path d="M62 8 q-7 7 0 14 q7 7 0 14" />
-      </g>
-      <path d="M30 40 L37 78 Q55 86 73 78 L80 40 Z" fill="#f5efdc" stroke="#16402c" stroke-width="4" stroke-linejoin="round"/>
-      <ellipse cx="55" cy="40" rx="25" ry="7" fill="#6aa05a" stroke="#16402c" stroke-width="4"/>
-      <path d="M33 58 Q55 64 77 58" fill="none" stroke="#3f7a4a" stroke-width="6" stroke-linecap="round"/>
+    <!-- 湯飲み茶碗 -->
+    <symbol id="ic-tea" viewBox="0 0 64 64" fill="none">
+      <path d="M27 10 c-3 3 -3 6 0 9 M36 10 c-3 3 -3 6 0 9" stroke="#1c3318" stroke-width="2.6" stroke-linecap="round"></path>
+      <path d="M16 25 h32 l-2.4 19 c-0.5 3.5 -5 5.5 -13.6 5.5 s-13.1 -2 -13.6 -5.5 z" fill="#1c3318"></path>
+      <ellipse cx="32" cy="26" rx="16" ry="3.4" fill="#8fb083"></ellipse>
+      <path d="M24 36 v8 M32 37 v8 M40 36 v8" stroke="#8fb083" stroke-width="2.4" stroke-linecap="round"></path>
+      <path d="M26 52 h12" stroke="#1c3318" stroke-width="3.4" stroke-linecap="round"></path>
     </symbol>
 
-    <!-- 紙コップ（テーパー・レトロ二色ストライプ） -->
-    <symbol id="ic-cup" viewBox="0 0 100 100">
-      <path d="M22 30 L33 82 Q50 89 67 82 L78 30 Z" fill="#fffdf6" stroke="#5a3a1c" stroke-width="4" stroke-linejoin="round"/>
-      <ellipse cx="50" cy="30" rx="28" ry="7" fill="#fffdf6" stroke="#5a3a1c" stroke-width="4"/>
-      <path d="M30 48 Q50 54 70 48" fill="none" stroke="#b9772e" stroke-width="6" stroke-linecap="round"/>
-      <path d="M33 62 Q50 67 67 62" fill="none" stroke="#5f8a56" stroke-width="6" stroke-linecap="round"/>
+    <!-- 紙コップ -->
+    <symbol id="ic-cup" viewBox="0 0 64 64" fill="none">
+      <path d="M15 17 h34" stroke="#5a3a1c" stroke-width="5.5" stroke-linecap="round"></path>
+      <path d="M18 19 l4 30 h20 l4 -30 z" fill="#fffaf0" stroke="#5a3a1c" stroke-width="2.6" stroke-linejoin="round"></path>
+      <path d="M19.5 30 q3 -3.4 6 0 t6 0 t6 0 t5 0" stroke="#3f7a4a" stroke-width="2.4" stroke-linecap="round"></path>
+      <path d="M20.5 36 q3 -3.4 6 0 t6 0 t6 0 t4 0" stroke="#b9772e" stroke-width="2.4" stroke-linecap="round"></path>
     </symbol>
   </defs>
 </svg>
