@@ -66,6 +66,17 @@
   .search-wrap .ic { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); font-size: 18px; color: var(--tan); }
   .search-wrap input { width: 100%; padding: 13px 14px 13px 40px; border-radius: 12px; border: none; background: var(--cream-2); font-size: 16px; color: var(--ink); font-family: "Zen Kaku Gothic New", sans-serif; outline: none; }
 
+  /* 部署プルダウン（スマホ版：部署数が多いので選択式） */
+  .dept-pick { flex: none; padding: 12px 18px; }
+  .dept-select {
+    width: 100%; padding: 11px 38px 11px 14px; border-radius: 12px;
+    border: 1px solid #d8c49c; background-color: #fffaf0; color: #5a3a1c;
+    font-size: 16px; font-family: "Zen Kaku Gothic New", sans-serif; font-weight: 500;
+    outline: none; cursor: pointer; -webkit-appearance: none; -moz-appearance: none; appearance: none;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'><path d='M1 1l5 5 5-5' stroke='%235a3a1c' stroke-width='2' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>");
+    background-repeat: no-repeat; background-position: right 14px center;
+  }
+
   /* 部署チップ（折り返し／横スクロールなし） */
   .chips { flex: none; display: flex; flex-wrap: wrap; gap: 8px; padding: 12px 18px; }
   .chip { flex: none; border: 1px solid #d8c49c; background: var(--cream-2); color: var(--brown); cursor: pointer; border-radius: 999px; padding: 8px 16px; font-size: 14px; font-weight: 500; }

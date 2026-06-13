@@ -51,10 +51,10 @@
 
   // ===== HOME =====
   function renderChips() {
+    // スマホ版は部署をプルダウンで選択（部署数が多いため）
     var all = ['すべて'].concat(S.depts);
-    el('dept-chips').innerHTML = all.map(function (d) {
-      var active = S.dept === d ? ' active' : '';
-      return '<button class="chip' + active + '" data-dept="' + escapeHtml(d) + '">' + escapeHtml(d) + '</button>';
+    el('dept-select').innerHTML = all.map(function (d) {
+      return '<option value="' + escapeHtml(d) + '"' + (S.dept === d ? ' selected' : '') + '>' + escapeHtml(d) + '</option>';
     }).join('');
   }
 
@@ -301,9 +301,8 @@
     el('search').addEventListener('input', function (e) { S.q = e.target.value; renderStaffList(); });
     el('btn-admin').addEventListener('click', openAdmin);
 
-    el('dept-chips').addEventListener('click', function (e) {
-      var b = e.target.closest('[data-dept]'); if (!b) return;
-      S.dept = b.getAttribute('data-dept'); renderChips(); renderStaffList();
+    el('dept-select').addEventListener('change', function (e) {
+      S.dept = e.target.value; renderStaffList();
     });
     el('staff-list').addEventListener('click', function (e) {
       var b = e.target.closest('[data-code]'); if (!b) return;
