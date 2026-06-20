@@ -64,22 +64,23 @@
   .led .lab { font-family: "Klee One", cursive; font-size: 18px; color: #7d6a4a; }
   .led .num { font-family: "Shippori Mincho", serif; font-weight: 800; font-size: 56px; line-height: 1; }
   .warn { flex: none; background: var(--red); color: #fff; border-radius: 12px; padding: 15px 20px; font-size: 23px; font-weight: 600; line-height: 1.5; }
-  /* コーヒー大ボタン（主役・券売機の主ボタン） */
-  .btn-coffee-hero { flex: 1; min-height: 0; cursor: pointer; border: none; border-radius: 16px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; background: linear-gradient(180deg,#caa468,#a87f3f); box-shadow: 0 8px 0 #7c5a28, inset 0 2px 4px #f0d9a8; transition: transform .04s, box-shadow .04s; }
+  /* コーヒー大ボタン（デザイン準拠・券売機の主ボタン） */
+  .btn-coffee-hero { flex: 1; min-height: 0; cursor: pointer; border: none; border-radius: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; position: relative; overflow: hidden; background: linear-gradient(180deg,#caa468,#a87f3f); box-shadow: 0 8px 0 #7c5a28, inset 0 2px 4px #f0d9a8; transition: transform .04s, box-shadow .04s; }
   .btn-coffee-hero:active { transform: translateY(5px); box-shadow: 0 3px 0 #7c5a28, inset 0 2px 4px #f0d9a8; }
-  .btn-coffee-hero .ic { display: flex; align-items: center; justify-content: center; }
-  .btn-coffee-hero .ic-svg { width: 132px; height: 132px; display: block; }
-  .btn-coffee-hero .name { font-family: "Shippori Mincho", serif; font-weight: 700; font-size: 44px; color: #2b1c0e; }
-  .btn-coffee-hero .price { border-radius: 999px; padding: 6px 28px; font-family: "Shippori Mincho", serif; font-weight: 700; font-size: 30px; background: #2b1c0e; color: #f0d9a8; }
-  .btn-coffee-hero .tap { font-family: "Klee One", cursive; font-size: 17px; color: #5a3a1c; }
+  .btn-coffee-hero .gloss { position: absolute; top: 0; left: 0; right: 0; height: 70px; background: linear-gradient(180deg,#ffffff2e,transparent); pointer-events: none; }
+  .btn-coffee-hero .cup { width: 128px; height: 128px; display: block; }
+  .btn-coffee-hero .name { font-family: "Shippori Mincho", serif; font-weight: 700; font-size: 50px; color: #2b1c0e; letter-spacing: .1em; }
+  .btn-coffee-hero .price { border-radius: 999px; padding: 9px 38px; font-family: "Shippori Mincho", serif; font-weight: 700; font-size: 34px; background: #2b1c0e; color: #f0d9a8; }
+  .btn-coffee-hero .tap { font-family: "Klee One", cursive; font-size: 19px; color: #5a3a1c; }
 
-  /* マイコップ案内カード（紙コップ原則禁止の明文化） */
-  .cup-notice { flex: none; display: flex; align-items: center; gap: 18px; background: var(--cream-2); border: 1px solid #e3d4b3; border-radius: 16px; padding: 18px 24px; }
-  .cup-notice .ic { flex: none; display: flex; align-items: center; justify-content: center; }
-  .cup-notice .ic-svg { width: 64px; height: 64px; display: block; opacity: .85; }
-  .cup-notice .txt { display: flex; flex-direction: column; gap: 4px; }
-  .cup-notice .t1 { font-family: "Shippori Mincho", serif; font-weight: 700; font-size: 26px; color: var(--brown); }
-  .cup-notice .t2 { font-size: 16px; color: #8a7458; line-height: 1.5; }
+  /* マイカップ案内カード（デザイン準拠・紙コップ原則禁止） */
+  .cup-notice { flex: none; display: flex; align-items: center; justify-content: center; gap: 18px; background: #fffaf0; border: 1px solid #e3d4b3; border-radius: 16px; padding: 16px 22px; }
+  .cup-notice .no-cup { position: relative; width: 42px; height: 42px; flex: none; }
+  .cup-notice .cup-ic { width: 42px; height: 42px; opacity: .55; }
+  .cup-notice .ban-ic { width: 42px; height: 42px; position: absolute; inset: 0; }
+  .cup-notice .txt { display: flex; align-items: baseline; gap: 14px; }
+  .cup-notice .t1 { font-family: "Shippori Mincho", serif; font-weight: 700; font-size: 22px; color: #5a3a1c; }
+  .cup-notice .t2 { font-size: 16px; color: #9c8055; font-weight: 500; }
 
   .side { width: 322px; flex: none; display: flex; flex-direction: column; gap: 16px; }
   .coin-panel { flex: none; background: var(--green); border-radius: 18px; padding: 20px 22px; box-shadow: inset 0 2px 0 var(--green-pos); }
