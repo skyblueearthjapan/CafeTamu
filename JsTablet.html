@@ -16,7 +16,7 @@
 
   var S = {
     depts: [], staff: [], staffByCode: {},
-    prices: { coffee: 20, tea: 10, cup: 10 },
+    prices: { coffee: 20 },
     depositOptions: [100, 500, 1000],
     q: '', dept: 'すべて',
     selectedCode: null,
@@ -137,8 +137,8 @@
   function buy(kind, btn) {
     var c = curStaff(); if (!c || S.busy) return;
     var amt = -S.prices[kind];
-    var label = kind === 'coffee' ? 'コーヒー' : kind === 'tea' ? 'お茶' : '紙コップ';
-    var isDrink = kind === 'coffee' || kind === 'tea';
+    var label = 'コーヒー';
+    var isDrink = true;
     c.balance += amt; if (isDrink) { c.today += 1; c.month += 1; }
     renderCount();
     pip({ sound: 'ピッ', label: label, sub: signed(amt), accent: '#b9772e' }, btn);
@@ -278,8 +278,6 @@
       S.staffByCode = {};
       S.staff.forEach(function (s) { s.history = []; S.staffByCode[s.code] = s; });
       el('price-coffee').textContent = S.prices.coffee;
-      el('price-tea').textContent = S.prices.tea;
-      el('price-cup').textContent = S.prices.cup;
       renderChips(); renderStaffGrid(); renderCoins();
       el('loading').style.display = 'none';
     }).catch(function (e) {

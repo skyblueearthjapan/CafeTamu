@@ -75,12 +75,13 @@ function historyForWorker_(code, limit) {
   });
 }
 
-/** 種別から金額・ラベル・ドリンク判定を解決 */
+/** 種別から金額・ラベル・ドリンク判定を解決
+ *  課金対象はコーヒーのみ（お茶は無料化・紙コップは廃止）。過去のお茶/紙コップ取引は
+ *  Transactions に保存済みの金額で集計されるため、ここから除いても履歴は壊れない。
+ */
 function resolveKind_(kind) {
   switch (kind) {
     case CONFIG.TX_TYPE.COFFEE: return { amount: -CONFIG.PRICES.coffee, label: 'コーヒー', isDrink: true };
-    case CONFIG.TX_TYPE.TEA:    return { amount: -CONFIG.PRICES.tea,    label: 'お茶',     isDrink: true };
-    case CONFIG.TX_TYPE.CUP:    return { amount: -CONFIG.PRICES.cup,    label: '紙コップ', isDrink: false };
     default: throw new Error('Unknown kind: ' + kind);
   }
 }
