@@ -44,14 +44,14 @@ function readDeptMaster_() {
 }
 
 /**
- * WorkerMaster はヘッダーなし。1行目タイトル、2行目からデータ。
- * A=worker_code, B=worker_name, C=dept_name, D=location, E=office
+ * WorkerMaster は1行目がヘッダー、2行目からデータ。マスタ元「作業員マスタ」を全列コピーした6列構成。
+ * A=worker_code, B=worker_name, C=dept_name, D=task(担当業務), E=location(拠点), F=staff_type(スタッフ種類)
  */
 function readWorkerMaster_() {
   const sheet = sh_(CONFIG.SHEETS.WORKER);
   const lastRow = sheet.getLastRow();
   if (lastRow < 2) return [];
-  const lastCol = Math.max(sheet.getLastColumn(), 5);
+  const lastCol = Math.max(sheet.getLastColumn(), 6);
   const data = sheet.getRange(2, 1, lastRow - 1, lastCol).getValues();
   return data
     .filter(row => row[0])
@@ -59,8 +59,9 @@ function readWorkerMaster_() {
       worker_code: String(row[0] || ''),
       worker_name: String(row[1] || ''),
       dept_name: String(row[2] || ''),
-      location: String(row[3] || ''),
-      office: String(row[4] || ''),
+      task: String(row[3] || '').trim(),
+      location: String(row[4] || '').trim(),     // 拠点（新工場 / 本社工場）
+      staff_type: String(row[5] || '').trim(),   // スタッフ種類（事務所 / 工場）
     }));
 }
 

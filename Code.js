@@ -233,11 +233,18 @@ function findWorker_(code) {
   return readWorkerMaster_().find(w => String(w.worker_code) === String(code)) || null;
 }
 
-/** 表示・集計対象の作業員（システムアカウント等を除外） */
+/**
+ * 表示・集計対象の作業員。
+ * システムアカウントを除外し、さらに CONFIG.WORKER_FILTER（拠点・スタッフ種類）で
+ * 新工場の事務所スタッフのみに絞り込む。フィルタ値が空文字の条件はスキップ（全件対象）。
+ */
 function listWorkers_() {
+  const f = CONFIG.WORKER_FILTER || {};
   return readWorkerMaster_().filter(w =>
     w.worker_code && w.worker_name &&
-    w.worker_name !== 'Administrator' && w.dept_name !== 'Administrator');
+    w.worker_name !== 'Administrator' && w.dept_name !== 'Administrator' &&
+    (!f.LOCATION || w.location === f.LOCATION) &&
+    (!f.STAFF_TYPE || w.staff_type === f.STAFF_TYPE));
 }
 
 /** 取引後の最新状態（残高・本日/今月・履歴）。lastTxId は省略可 */
